@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini_api_vanilla/pages/home/models/content.dart';
@@ -15,6 +15,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   List<Content> contents = [];
   bool isGenerating = false;
+  static const String errorMessage = 'Something went wrong';
 
   final TextEditingController messageController = TextEditingController();
   final ScrollController messageListScrollController = ScrollController();
@@ -43,19 +44,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         isGenerating = true;
         _scrollDown();
 
-        String responseText =
-            await ChatRepository.onChatInputSubmittedRequest(contents);
-        if (responseText.isNotEmpty) {
-          contents
-              .add(Content(role: 'model', parts: [Part(text: responseText)]));
-          emit(ChatLoadedState(contents: contents));
-        }
+        var contentResponse = await ChatRepository.getGeminiResponse(contents);
+        log(contentResponse.toString());
+        contents.add(contentResponse);
+        emit(ChatLoadedState(contents: contents));
+
         isGenerating = false;
         _scrollDown();
       }
     } catch (e) {
-      emit(ChatErrorState(errorMessage: 'Something went wrong'));
-      log(e.toString() as num);
+      emit(ChatErrorState(errorMessage: errorMessage));
+      log(e.toString());
     }
   }
 }

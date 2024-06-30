@@ -34,7 +34,7 @@ class Content {
     return Content(
       role: map['role'] as String,
       parts: List<Part>.from(
-        (map['parts'] as List<int>).map<Part>(
+        (map['parts'] as List<dynamic>).map<Part>(
           (x) => Part.fromMap(x as Map<String, dynamic>),
         ),
       ),
