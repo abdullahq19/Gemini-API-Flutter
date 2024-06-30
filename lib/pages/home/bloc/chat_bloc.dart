@@ -10,16 +10,34 @@ part 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc() : super(ChatIntialState()) {
-    on<ChatInputSubmitEvent>(_onChatInputSubmittedEvent);
+    on<ChatInputSubmitEvent>(_onChatInputSubmittedEventHandler);
   }
 
   List<Content> contents = [];
-  bool isGenerating = false;
-  static const String errorMessage = 'Something went wrong';
+  bool isGenerating =
+      false; // boolean denoting if a user response is being processed
+  static const String errorMessage = 'Something went wrong'; // Error Message
 
+  // controller for TextField
   final TextEditingController messageController = TextEditingController();
+  // scroll controller for ListView
   final ScrollController messageListScrollController = ScrollController();
 
+  // Submit message event handler
+  FutureOr<void> _onChatInputSubmittedEventHandler(
+      ChatInputSubmitEvent event, Emitter<ChatState> emit) async {
+    try {
+      if (messageController.text.isNotEmpty) {
+        addUserResponse(emit);
+        await getModelResponse(emit);
+      }
+    } catch (e) {
+      emit(ChatErrorState(errorMessage: errorMessage));
+      log(e.toString());
+    }
+  }
+
+  // method to scroll down automatically on every response added
   Future<void> _scrollDown() async {
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
@@ -33,28 +51,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  FutureOr<void> _onChatInputSubmittedEvent(
-      ChatInputSubmitEvent event, Emitter<ChatState> emit) async {
-    try {
-      if (messageController.text.isNotEmpty) {
-        contents.add(
-            Content(role: 'user', parts: [Part(text: messageController.text)]));
-        emit(ChatLoadedState(contents: contents));
-        messageController.clear();
-        isGenerating = true;
-        _scrollDown();
+  // Adding a response from user
+  void addUserResponse(Emitter<ChatState> emit) {
+    contents.add(
+        Content(role: 'user', parts: [Part(text: messageController.text)]));
+    emit(ChatLoadedState(contents: contents));
+    messageController.clear();
+    isGenerating = true;
+    _scrollDown();
+  }
 
-        var contentResponse = await ChatRepository.getGeminiResponse(contents);
-        log(contentResponse.toString());
-        contents.add(contentResponse);
-        emit(ChatLoadedState(contents: contents));
-
-        isGenerating = false;
-        _scrollDown();
-      }
-    } catch (e) {
-      emit(ChatErrorState(errorMessage: errorMessage));
-      log(e.toString());
-    }
+  // Getting a response from the model
+  Future<void> getModelResponse(Emitter<ChatState> emit) async {
+    var contentResponse = await ChatRepository.getGeminiResponse(contents);
+    contents.add(contentResponse);
+    emit(ChatLoadedState(contents: contents));
+    isGenerating = false;
+    _scrollDown();
   }
 }

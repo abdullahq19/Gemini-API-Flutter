@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:gemini_api_vanilla/consts.dart';
 import 'package:gemini_api_vanilla/pages/home/models/content.dart';
+import 'package:gemini_api_vanilla/pages/home/models/part.dart';
 import 'package:http/http.dart';
 
 abstract class ApiService {
@@ -48,7 +49,14 @@ class ChatAPIService extends ApiService {
   String get _apiUrl => '/v1beta/models/gemini-1.5-flash:generateContent?key=';
 
   Future<Content> fetchChatResponse(List<Content> contents) async {
-    Map<String, dynamic> map = await fetch(contents);
-    return Content.fromMap(map);
+    try {
+      Map<String, dynamic> map = await fetch(contents);
+      return Content.fromMap(map);
+    } catch (e) {
+      log(e.toString());
+      return Content(role: 'model', parts: [
+        Part(text: 'Sorry, I\'m having trouble getting the response')
+      ]);
+    }
   }
 }

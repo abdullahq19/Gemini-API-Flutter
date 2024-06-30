@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:gemini_api_vanilla/pages/home/models/content.dart';
 import 'package:gemini_api_vanilla/pages/home/services/api_service.dart';
 

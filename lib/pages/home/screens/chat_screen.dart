@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gemini_api_vanilla/pages/home/widgets/chat_messages_list.dart';
 import 'package:gemini_api_vanilla/pages/home/widgets/chat_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Size(:width, :height) = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 24, 31, 44),
@@ -31,8 +29,8 @@ class ChatScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(flex: 85,child: ChatMessagesList()),
-            Expanded(flex: 15,child: ChatTextField()),
+            Expanded(flex: 88,child: ChatMessagesList()),
+            Expanded(flex: 12,child: ChatTextField()),
           ],
         ),
       ),
