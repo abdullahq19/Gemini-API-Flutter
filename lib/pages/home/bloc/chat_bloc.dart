@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gemini_api_vanilla/pages/home/models/content.dart';
 import 'package:gemini_api_vanilla/pages/home/models/part.dart';
